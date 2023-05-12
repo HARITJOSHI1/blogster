@@ -21,6 +21,9 @@ export const env = createEnv({
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
       process.env.VERCEL ? z.string().min(1) : z.string().url(),
     ),
+
+    JWT_SECRET: z.string(),
+    JWT_EXPIRES: z.string()
   },
 
   /**
@@ -42,5 +45,7 @@ export const env = createEnv({
     REDIS_URL: process.env.REDIS_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    JWT_SECRET: process.env.JWT_SECRET,
+    JWT_EXPIRES: process.env.JWT_EXPIRES,
   },
 });

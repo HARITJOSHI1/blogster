@@ -12,16 +12,17 @@ datasource db {
 }
 
 model AppUser {
-    id        String   @id @default(cuid())
-    email     String
+    id        String    @id @default(cuid())
+    email     String @unique
     name      String
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    articles    Article[]
+    password  String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    articles  Article[]
 }
 
 model Article {
-    id        String      @id @default(cuid())
+    id        String   @id @default(cuid())
     title     String
     content   String
     author    AppUser  @relation(fields: [authorId], references: [id])
