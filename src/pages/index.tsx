@@ -1,10 +1,24 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useGlobalContext } from "~/components/context/GlobalContext";
 
 const Home: NextPage = () => {
   const { data: session } = useSession();
-  if (session) console.log("Successfully signin:", session.user);
+  const { userState } = useGlobalContext();
+
+  useEffect(() => {
+    if (session && session.user) {
+      userState.set({
+        name: session.user.name as string,
+        email: session.user.email as string,
+      });
+    }
+  }, [session?.user]);
 
   return (
     <>

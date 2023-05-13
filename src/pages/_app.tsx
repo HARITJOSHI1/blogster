@@ -3,33 +3,20 @@ import { type Session } from "next-auth";
 import { SessionProvider } from "next-auth/react";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
-import { useState } from "react";
-import {
-  GlobleContextStore,
-  type AppContextState,
-} from "~/components/context/GlobleContext";
+import { GlobalContextProvider } from "~/components/context/GlobalContext";
 import Layout from "~/components/Layout";
 
 const MyApp: AppType<{ session: Session | null }> = ({
   Component,
   pageProps: { session, ...pageProps },
 }) => {
-  const [userData, setUserData] = useState<AppContextState["userState"]>(null);
-
-  const value = {
-    userState: {
-      set: setUserData,
-      get: () => userData,
-    },
-  };
-
   return (
     <SessionProvider session={session}>
-      <GlobleContextStore.Provider value={value}>
+      <GlobalContextProvider>
         <Layout>
           <Component {...pageProps} />
         </Layout>
-      </GlobleContextStore.Provider>
+      </GlobalContextProvider>
     </SessionProvider>
   );
 };

@@ -1,12 +1,14 @@
 import { type ISignInFormFieldState } from "../pages/signin";
-import { type IForm } from "~/utils/form";
+import { type IForm } from "~/utils/forms/types";
+import { formatLabel } from "~/utils/forms/helper";
+import Form from "~/utils/forms/form";
 
 interface ISignInFormProps extends IForm {
   fields: ISignInFormFieldState;
 }
 
-export default function SignUpForm(props: ISignInFormProps) {
-  const { handleChange, handleSubmit, fields, loading } = props;
+export default function SignInForm(props: ISignInFormProps) {
+  const { handleChange, handleSubmit, fields, loadState, btnText } = props;
 
   const getTypes = (l: keyof ISignInFormFieldState) => {
     switch (l) {
@@ -19,12 +21,6 @@ export default function SignUpForm(props: ISignInFormProps) {
     }
   };
 
-  const formatLabel = (l: keyof ISignInFormFieldState) => {
-    const strs = l.split("");
-    strs[0] = strs[0]?.toUpperCase() as string;
-    return strs.join("");
-  };
-  
   const generateFields = () => {
     return Object.keys(fields).map((key, idx) => {
       const label = key as keyof ISignInFormFieldState;
@@ -55,19 +51,11 @@ export default function SignUpForm(props: ISignInFormProps) {
   };
 
   return (
-    <form
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onSubmit={handleSubmit}
-      className="form-control w-full max-w-xs"
-    >
-      {generateFields()}
-      <button className="btn-info btn-wide btn mt-10 w-full bg-blue-600 text-white hover:bg-blue-500">
-        {loading ? (
-          <span className="text-white">Hang tight...</span>
-        ) : (
-          <span>Join</span>
-        )}
-      </button>
-    </form>
+    <Form
+      handleSubmit={handleSubmit}
+      loadState={loadState}
+      btnText={btnText}
+      generateFields={generateFields}
+    />
   );
 }

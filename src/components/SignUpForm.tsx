@@ -1,19 +1,14 @@
 import { type ISignUpFormFieldState } from "../pages/signup";
-import { type IForm } from "~/utils/form";
+import { type IForm } from "~/utils/forms/types";
+import Form from "../utils/forms/form";
+import { formatLabel } from "~/utils/forms/helper";
 
 interface ISignUpFormProps extends IForm {
   fields: ISignUpFormFieldState;
 }
 
 export default function SignUpForm(props: ISignUpFormProps) {
-  const { handleChange, handleSubmit, fields, loading } = props;
-
-  const formatLabel = (l: keyof ISignUpFormFieldState) => {
-    const strs = l.split("");
-    strs[0] = strs[0]?.toUpperCase() as string;
-    return strs.join("");
-  };
-
+  const { handleChange, handleSubmit, fields, loadState, btnText } = props;
   const getTypes = (l: keyof ISignUpFormFieldState) => {
     switch (l) {
       case "email":
@@ -55,19 +50,11 @@ export default function SignUpForm(props: ISignUpFormProps) {
   };
 
   return (
-    <form
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      onSubmit={handleSubmit}
-      className="form-control w-full max-w-xs"
-    >
-      {generateFields()}
-      <button className="btn-info btn-wide btn mt-10 w-full bg-blue-600 text-white hover:bg-blue-500">
-        {loading ? (
-          <span className="text-white">Hang tight...</span>
-        ) : (
-          <span>Join</span>
-        )}
-      </button>
-    </form>
+    <Form
+      handleSubmit={handleSubmit}
+      loadState={loadState}
+      btnText={btnText}
+      generateFields={generateFields}
+    />
   );
 }

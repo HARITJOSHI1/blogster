@@ -1,11 +1,17 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/require-await */
+
 import Head from "next/head";
 import SignUpForm from "~/components/SignUpForm";
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { api as trpc } from "../utils/api";
-import { GlobleContextStore } from "~/components/context/GlobleContext";
-import { signIn } from "next-auth/react";
+import { useGlobalContext } from "~/components/context/GlobalContext";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import Error, { type IError } from "~/components/Error";
+import { useQueryClient } from "@tanstack/react-query";
 
 export interface ISignUpFormFieldState {
   name: { val: string; err?: string };
@@ -15,25 +21,39 @@ export interface ISignUpFormFieldState {
 
 export default function SignUp() {
   const [submit, setSubmit] = useState(false);
-  const { userState } = useContext(GlobleContextStore);
+  const { userState } = useGlobalContext();
+  const [error, setError] = useState<IError>();
+  const utils = trpc.useContext();
+  const { data: session } = useSession();
+  const router = useRouter();
+  if (session && session.user) void router.push("/");
 
   const mutation = trpc.entry.siginUp.useMutation({
     onSuccess: async ({ data }) => {
+      setError(undefined);
       await signIn("credentials", {
         existingUser: true,
         email: data.user.email,
         name: data.user.name,
         id: data.user.id,
         redirect: true,
-        callbackUrl: '/'
+        callbackUrl: "/",
       });
 
       setSubmit(false);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       userState.set(data.user);
     },
 
     onError: (err) => {
-      console.log(err.message);
+      setSubmit(false);
+      console.log("Here is the error: ", err.data, err.message);
+      setError({
+        code: err.data?.code || "Internal Server Error",
+        message: 'User already exists',
+      });
+
+      void utils.entry.invalidate();
     },
   });
 
@@ -90,9 +110,21 @@ export default function SignUp() {
           <h1 className="mb-6 text-4xl font-semibold">
             Sign up to write blogs
           </h1>
+
+          {error && (
+            <Error
+              isSubmit={submit}
+              code={error.code}
+              message={error.message}
+            />
+          )}
           <SignUpForm
             fields={fields}
-            loading={submit}
+            loadState={{
+              loading: submit,
+              text: "Hang tight...",
+            }}
+            btnText="Join"
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />

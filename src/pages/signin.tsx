@@ -2,9 +2,10 @@
 /* eslint-disable @typescript-eslint/require-await */
 import Head from "next/head";
 import SignInForm from "~/components/SignInForm";
-import React, { useContext, useState } from "react";
-import { GlobleContextStore } from "~/components/context/GlobleContext";
-import { signIn } from "next-auth/react";
+import React, { useState } from "react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import Error, { IError } from "../components/Error";
 
 export interface ISignInFormFieldState {
   email: { val: string; err?: string };
@@ -13,7 +14,10 @@ export interface ISignInFormFieldState {
 
 export default function SignIn() {
   const [submit, setSubmit] = useState(false);
-  const { userState } = useContext(GlobleContextStore);
+  const [error, setError] = useState<IError>();
+  const { data: session } = useSession();
+  const router = useRouter();
+  if (session && session.user) void router.push("/");
 
   const [fields, setFields] = useState<ISignInFormFieldState>({
     email: { val: "" },
@@ -49,12 +53,15 @@ export default function SignIn() {
     if (isError) return;
     setSubmit(true);
 
-    await signIn("credentials", {
+    const res = await signIn("credentials", {
       email: fields.email.val,
       password: fields.password.val,
       redirect: true,
-      callbackUrl: '/'
+      callbackUrl: "/",
     });
+
+    if (res?.error)
+      setError({ code: "Internal Server Error", message: res.error });
   };
 
   return (
@@ -68,9 +75,22 @@ export default function SignIn() {
           <h1 className="mb-6 text-4xl font-semibold">
             Sign In to write blogs
           </h1>
+
+          {error && (
+            <Error
+              isSubmit={submit}
+              code={error.code}
+              message={error.message}
+            />
+          )}
+
           <SignInForm
             fields={fields}
-            loading={submit}
+            loadState={{
+              loading: submit,
+              text: "Hang tight...",
+            }}
+            btnText="Login"
             handleChange={handleChange}
             handleSubmit={handleSubmit}
           />

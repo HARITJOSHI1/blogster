@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         const cred = credentials as {
           existingUser?: boolean;
-          id?: string;
+          id: string;
           name?: string;
           email: string;
           password: string;
