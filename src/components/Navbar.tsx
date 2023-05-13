@@ -4,7 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 export default function Navbar() {
-  const {data: session} = useSession();
+  const { data: session } = useSession();
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -16,7 +16,11 @@ export default function Navbar() {
         </div>
         {session?.user ? (
           <div>
-            <Link href="/me/profile">
+            <Link
+              href={{
+                pathname: "/my/profile",
+              }}
+            >
               <span className="ml-2 font-medium text-white">
                 Welcome <i>{session.user.name}!</i>
               </span>
