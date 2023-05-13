@@ -19,11 +19,14 @@ export const env = createEnv({
       // Since NextAuth.js automatically uses the VERCEL_URL if present.
       (str) => process.env.VERCEL_URL ?? str,
       // VERCEL_URL doesn't include `https` so it cant be validated as a URL
-      process.env.VERCEL ? z.string().min(1) : z.string().url(),
+      process.env.VERCEL ? z.string().min(1) : z.string().url()
     ),
 
-    JWT_SECRET: z.string(),
-    JWT_EXPIRES: z.string()
+    JWT_SECRET_A: z.string(),
+    JWT_EXPIRES_A: z.string(),
+
+    JWT_SECRET_R: z.string(),
+    JWT_EXPIRES_R: z.string(),
   },
 
   /**
@@ -45,7 +48,9 @@ export const env = createEnv({
     REDIS_URL: process.env.REDIS_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-    JWT_SECRET: process.env.JWT_SECRET,
-    JWT_EXPIRES: process.env.JWT_EXPIRES,
+    JWT_SECRET_A: process.env.JWT_SECRET_A,
+    JWT_EXPIRES_A: process.env.JWT_EXPIRES_A,
+    JWT_SECRET_R: process.env.JWT_SECRET_R,
+    JWT_EXPIRES_R: process.env.JWT_EXPIRES_R,
   },
 });

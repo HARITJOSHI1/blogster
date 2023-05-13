@@ -1,51 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/require-await */
 import Head from "next/head";
-import SignUpForm from "~/components/SignUpForm";
+import SignInForm from "~/components/SignInForm";
 import React, { useContext, useState } from "react";
-import { api as trpc } from "../utils/api";
 import { GlobleContextStore } from "~/components/context/GlobleContext";
 import { signIn } from "next-auth/react";
 
-export interface ISignUpFormFieldState {
-  name: { val: string; err?: string };
+export interface ISignInFormFieldState {
   email: { val: string; err?: string };
   password: { val: string; err?: string };
 }
 
-export default function SignUp() {
+export default function SignIn() {
   const [submit, setSubmit] = useState(false);
   const { userState } = useContext(GlobleContextStore);
 
-  const mutation = trpc.entry.siginUp.useMutation({
-    onSuccess: async ({ data }) => {
-      await signIn("credentials", {
-        existingUser: true,
-        email: data.user.email,
-        name: data.user.name,
-        id: data.user.id,
-        redirect: true,
-        callbackUrl: '/'
-      });
-
-      setSubmit(false);
-      userState.set(data.user);
-    },
-
-    onError: (err) => {
-      console.log(err.message);
-    },
-  });
-
-  const [fields, setFields] = useState<ISignUpFormFieldState>({
-    name: { val: "" },
+  const [fields, setFields] = useState<ISignInFormFieldState>({
     email: { val: "" },
     password: { val: "" },
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
-    const id = e.target.id.split("-")[0] as keyof ISignUpFormFieldState;
+    const id = e.target.id.split("-")[0] as keyof ISignInFormFieldState;
     setFields({
       ...fields,
       [id]: { val: value },
@@ -60,7 +37,7 @@ export default function SignUp() {
     let isError = false;
 
     Object.keys(fields).forEach((key) => {
-      const k = key as keyof ISignUpFormFieldState;
+      const k = key as keyof ISignInFormFieldState;
       if (!fields[k].val) {
         isError = true;
         fields[k].err = "empty field not accepted";
@@ -70,27 +47,28 @@ export default function SignUp() {
     });
 
     if (isError) return;
-
     setSubmit(true);
-    mutation.mutate({
-      name: fields.name.val,
+
+    await signIn("credentials", {
       email: fields.email.val,
       password: fields.password.val,
+      redirect: true,
+      callbackUrl: '/'
     });
   };
 
   return (
     <>
       <Head>
-        <title>Sign Up</title>
+        <title>Sign In</title>
       </Head>
 
       <section className="h-screen">
         <div className="flex h-full flex-col items-center justify-center">
           <h1 className="mb-6 text-4xl font-semibold">
-            Sign up to write blogs
+            Sign In to write blogs
           </h1>
-          <SignUpForm
+          <SignInForm
             fields={fields}
             loading={submit}
             handleChange={handleChange}

@@ -1,7 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
+import { useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession();
+  if (session) console.log("Successfully signin:", session.user);
+
   return (
     <>
       <Head>
